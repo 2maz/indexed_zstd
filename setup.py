@@ -6,14 +6,20 @@ import platform
 from setuptools import setup
 from setuptools.extension import Extension
 from Cython.Build import cythonize
+from pathlib import Path
+import subprocess
 
+package_dir = Path(__file__).parent.resolve()
+zstd_seek = package_dir / "libzstd-seek" / "zstd-seek.c"
+if not zstd_seek.exists():
+    subprocess.run("git submodule update --init --recursive", shell=True, cwd=str(package_dir))
 
 if platform.system() == "Darwin":
     extra_compile_args = [ '-std=c++17', '-O3', '-DNDEBUG', '-stdlib=libc++', '-mmacosx-version-min=10.9']
     extra_link_args    = [ '-lzstd', '-stdlib=libc++', '-mmacosx-version-min=10.9' ]
-    include_dirs       = [ '.' ]
+    include_dirs       = [ '.' , '/opt/homebrew/include']
     libraries          = [ 'm' ]
-    library_dirs       = []
+    library_dirs       = ['/opt/homebrew/lib']
 
 elif platform.system() == "Windows":
     _pkg_dir = os.path.dirname(__file__)
